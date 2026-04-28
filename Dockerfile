@@ -1,18 +1,20 @@
-# Use official Node.js Alpine image
-FROM node:18-alpine
+# Stage 1: Build dependencies
+FROM node:18-alpine AS build
 
-# Set working directory
 WORKDIR /home/node/app
 
-# Copy package.json and install dependencies
+# Install dependencies
 COPY package.json ./
-RUN npm install
+RUN npm install --production
 
-# Copy application files
+# Copy source
 COPY . .
 
-# Expose port
-EXPOSE 3000
+# Stage 2: Run lightweight container
+FROM build
 
-# Run the app
+# Copy only built app + node_modules
+COPY . .
+run npm install --production
+EXPOSE 3000
 CMD ["npm", "start"]
